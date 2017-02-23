@@ -33,13 +33,7 @@
 	</div>
 	<div class="row mt-3">
 		<div class="col">
-			<div class="code">
-				[
-				{{#each drawing.points}}
-					[ {{this.[0]}}, {{this.[1]}} ],
-				{{/each}}
-				]
-			</div>
+			<div class="code">[{{#each drawing.points}}[{{this.[0]}},{{this.[1]}}],{{/each}}]</div>
 		</div>
 	</div>
 </div>
