@@ -1,0 +1,45 @@
+<div class="container">
+	<div class="row">
+		<div class="col">
+			{{#if drawing.title}}
+				<h1>{{drawing.title}}</h1>
+			{{/if}}
+			{{#if drawing.surprise}}
+				<div class="canvas text-center d-flex align-items-center justify-content-center">
+					<p>
+						<strong>IT'S A SURPRISE!</strong>
+					</p>
+				</div>
+			{{else}}
+				<!-- {{#each drawing.rawPoints}}{{#ifeq @index 0}}M {{this.[0]}} {{this.[1]}} L {{else}}{{this.[0]}} {{this.[1]}}, {{/ifeq}}{{/each}} -->
+				<svg class="canvas" xmlns="http://www.w3.org/2000/svg">
+					<path d="{{#each drawing.rawPoints}}{{#ifeq @index 0}}M {{this.[0]}} {{this.[1]}} L {{else}}{{this.[0]}} {{this.[1]}}, {{/ifeq}}{{/each}}" fill="transparent" stroke="black" stroke-width="2"/>
+				</svg>
+			{{/if}}
+			{{#if drawing.author}}
+				<p>
+					by {{drawing.author}}
+				</p>
+			{{/if}}
+		</div>
+	</div>
+	<div class="row mt-3">
+		<div class="col">
+			<p>
+				<a href="/">Draw another one</a><br>
+				<a class="getCode" href="#">Get code</a>
+			</p>
+		</div>
+	</div>
+	<div class="row mt-3">
+		<div class="col">
+			<div class="code">
+				[
+				{{#each drawing.points}}
+					[ {{this.[0]}}, {{this.[1]}} ],
+				{{/each}}
+				]
+			</div>
+		</div>
+	</div>
+</div>
