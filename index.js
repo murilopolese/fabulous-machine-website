@@ -27,8 +27,8 @@ var app = express();
 app.set( 'view engine', 'hbs' );
 app.set( 'views', __dirname + '/views' );
 app.use( express.static( __dirname + '/public' ) );
-app.use(bodyParser.json({limit: '5mb'}));
-app.use(bodyParser.urlencoded({limit: '5mb',extended: true}));
+app.use(bodyParser.json({limit: '50mb', parameterLimit: 100000}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true, parameterLimit: 100000}));
 
 app.get( '/', function( req, res ) {
     res.render( 'home' );
