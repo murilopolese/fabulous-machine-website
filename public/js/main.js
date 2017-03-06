@@ -95,10 +95,12 @@ $( document ).ready(function() {
 				console.log( 'close message', event );
 			}
 		}
+		return false;
 	})
-	
+
 	$( '.sendCommand' ).click( function() {
 		ws.send( $( '.input-command' ).val() + '\r' );
+		return false;
 	})
 
 })
