@@ -1,0 +1,46 @@
+<div class="container mb-4">
+	<div class="connection-step-1">
+		<div class="row">
+			<div class="col">
+				<h2>Connect to your machine</h2>
+			</div>
+		</div>
+		<div class="row mb-2">
+			<div class="col text-left">
+				<p>
+					<input class="input-text input-address" type="text" name="address" value="ws://192.168.0.12:8266/" placeholder="Address">
+				</p>
+			</div>
+			<div class="col text-right">
+				<p>
+					<input class="input-text input-password" type="password" name="password" value="123456" placeholder="Password">
+				</p>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col text-left">
+				<p>
+					<a class="connect" href="#">Connect to machine</a><br/>
+				</p>
+			</div>
+		</div>
+	</div>
+	<div class="connection-step-2" style="display: none">
+		<div class="row">
+			<div class="col">
+				<h2>Control your machine</h2>
+			</div>
+		</div>
+		<div class="row mb-2">
+			<div class="col">
+				<p>
+					<input class="input-text input-command" type="text" name="command" value="" placeholder="Your python command here. Try 'move(10,10)'">
+				</p>
+				<p>
+					<a href="#" class="sendCommand">Send command</a>
+				</p>
+				<div class="code"></div>
+			</div>
+		</div>
+	</div>
+</div>

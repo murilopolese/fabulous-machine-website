@@ -70,4 +70,35 @@ $( document ).ready(function() {
 		return false;
 	})
 
+
+	$( '.connect' ).click(function() {
+		var address = $( '.input-address' ).val();
+		ws = new WebSocket( address )
+		ws.onopen = function() {
+			console.log( 'Welcome to the machine' );
+			ws.onmessage = function( event ) {
+				console.log( 'event message', event );
+				// If is asking for password, send password
+				if( event.data == 'Password: ' ) {
+					ws.send( $( '.input-password' ).val() + '\n' )
+				}
+				// If WebREPL is connected, move to step 2
+				if( event.data.indexOf( 'WebREPL connected' ) != -1 ) {
+					$( '.connection-step-1' ).hide()
+					$( '.connection-step-2' ).show()
+				}
+				// Anyway log it to the "terminal"
+				console.log(event.data);
+				$( '.code' ).append( event.data.replace( '\n', '<br>' ) );
+			}
+			ws.onclose = function( event ) {
+				console.log( 'close message', event );
+			}
+		}
+	})
+	
+	$( '.sendCommand' ).click( function() {
+		ws.send( $( '.input-command' ).val() + '\r' );
+	})
+
 })

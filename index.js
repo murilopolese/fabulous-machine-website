@@ -111,6 +111,10 @@ app.get( '/about', function( req, res ) {
     res.render( 'about' );
 });
 
+app.get( '/control', function( req, res ) {
+    res.render( 'control' );
+});
+
 app.get( '*', function( req, res ) {
     res.render( 'error' );
 });
