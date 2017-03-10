@@ -20,7 +20,7 @@ var Drawing = mongoose.model( 'Drawing', Schema )
 
 // START AND CONFIGURE EXPRESS APP
 var app = express();
-app.use( express.static( __dirname + '/../app' ) );
+app.use( express.static( __dirname + '/app' ) );
 app.use( bodyParser.json( { limit: '50mb', parameterLimit: 100000 } ) );
 app.use( bodyParser.urlencoded( { limit: '50mb', extended: true, parameterLimit: 100000 } ) );
 
