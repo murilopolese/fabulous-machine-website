@@ -1,0 +1,66 @@
+<div class="container mb-4">
+	<div class="row mb-2">
+		<div class="col text-center">
+			<canvas id="canvas" class="canvas" resize></canvas>
+		</div>
+	</div>
+	<div class="row mb-2">
+		<div class="col text-left">
+			<p>
+				<input class="input-text input-title" type="text" name="title" value="" placeholder="Drawing title">
+			</p>
+		</div>
+		<div class="col text-right">
+			<p>
+				<input class="input-text input-author" type="text" name="author" value="" placeholder="Author">
+			</p>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col text-left">
+			<p>
+				<a class="saveDrawing" href="#">Save Drawing</a><br/>
+				<a class="surpriseDrawing" href="#">Surprise Drawing!</a>
+			</p>
+		</div>
+	</div>
+</div>
+
+<div class="container">
+	<div class="row mb-4">
+		<div class="col text-center">
+			<h2>Gallery</h2>
+		</div>
+	</div>
+	<div class="row">
+		{{#each drawings}}
+			<div class="col-12 col-lg-6 mb-4">
+
+				<a href="/drawing/{{_id}}">
+					{{#if surprise}}
+						<div class="thumbnail text-center d-flex align-items-center justify-content-center">
+							<p>
+								<strong>IT'S A SURPRISE!</strong>
+							</p>
+						</div>
+					{{else}}
+						<svg class="thumbnail" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 710 400">
+							<path d="{{#each rawPoints}}{{#ifeq @index 0}}M {{this.[0]}} {{this.[1]}} L {{else}}{{this.[0]}} {{this.[1]}}, {{/ifeq}}{{/each}}" fill="transparent" stroke="black" stroke-width="2"/>
+						</svg>
+					{{/if}}
+					{{#if title}}
+						{{title}}
+					{{else}}
+						No title
+					{{/if}}
+					<br>
+					{{#if author}}
+						by {{author}}
+					{{else}}
+						by Who Knows?
+					{{/if}}
+				</a>
+			</div>
+		{{/each}}
+	</div>
+</div>

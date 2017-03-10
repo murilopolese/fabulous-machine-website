@@ -1,0 +1,20 @@
+{
+  "name": "fabulous-machine-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.16.1",
+    "dotenv": "^4.0.0",
+    "express": "^4.14.1",
+    "express-restify": "^1.1.4",
+    "hbs": "^4.0.1",
+    "mongoose": "^4.8.4"
+  }
+}
