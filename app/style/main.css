@@ -14,11 +14,11 @@ body {
 	border: none;
 	border-bottom: solid 2px #9DA0A2;
 }
-.code {
+.log {
 	font-size: 0.8rem;
 	background: black;
 	color: white;
-	height: 400px;
+	height: 100px;
 	overflow-y: scroll;
 }
 .thumbnail {

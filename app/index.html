@@ -7,7 +7,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<link rel="shortcut icon" href="https://cdn0.iconfinder.com/data/icons/octicons/1024/terminal-128.png" type="image/x-icon">
 		<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Inconsolata:400,700">
-		
+
 		<link rel="stylesheet" href="/style/normalize.css" charset="utf-8">
 		<link rel="stylesheet" href="/style/bootstrap.min.css" charset="utf-8">
 		<link rel="stylesheet" href="/style/site.min.css" charset="utf-8">
@@ -265,11 +265,124 @@
 			</div>
 		</script>
 
+		<script id="template-connection" type="text/x-handlebars-template">
+			{{#ifeq status "connecting"}}
+				<div class="container mb-4">
+					<div class="row">
+						<div class="col">
+							<h3>Connecting...</h3>
+						</div>
+					</div>
+				</div>
+			{{/ifeq}}
+			{{#ifeq status "connected"}}
+				<div class="container mb-4">
+					<div class="row">
+						<div class="col">
+							<h3>Connected!</h3>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-12">
+							<h4>Commands:</h4>
+						</div>
+						<div class="col-12 col-md-4">
+							<ul>
+								<li>
+									<input class="input-text input-command" type="text" name="command" value="move( 0 , 0 )" placeholder="Custom command">
+								</li>
+								<li class="mt-lg-2">
+									<a href="#" class="sendCustomCommand">Send command</a>
+								<li>
+							</ul>
+						</div>
+						<div class="co-12 col-md-4">
+							<ul>
+								<li><a href="#" class="uploadDrawing">Upload drawing</a></li>
+								<li><a href="#" class="sendCommand" data-command="draw()">Draw</a></li>
+								<li class="hidden-md-down"><br></li>
+								<li><a href="#" class="disconnect">Disconnect</a></li>
+							</ul>
+						</div>
+						<div class="col-12 col-md-4">
+							<ul>
+								<li><a href="#" class="sendCommand" data-command="move(0,50)">Move up</a></li>
+								<li><a href="#" class="sendCommand" data-command="move(0,-50)">Move down</a></li>
+								<li><a href="#" class="sendCommand" data-command="move(-50,0)">Move left</a></li>
+								<li><a href="#" class="sendCommand" data-command="move(50,0)">Move right</a></li>
+							</ul>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<h4>Logs:</h4>
+							<pre class="log"></pre>
+						</div>
+					</div>
+				</div>
+			{{/ifeq}}
+			{{#ifeq status "disconnected"}}
+				<div class="container mb-4">
+					<div class="connection-step-1">
+						<div class="row">
+							<div class="col">
+								<h2>Connect to your machine</h2>
+							</div>
+						</div>
+						<div class="row mb-2">
+							<div class="col text-left">
+								<p>
+									<input class="input-text input-address" type="text" name="address" value="ws://192.168.0.12:8266/" placeholder="Address">
+								</p>
+							</div>
+							<div class="col text-right">
+								<p>
+									<input class="input-text input-password" type="password" name="password" value="123456" placeholder="Password">
+								</p>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col text-left">
+								<p>
+									<a class="connect" href="#">Connect to machine</a><br/>
+								</p>
+							</div>
+						</div>
+					</div>
+					<div class="connection-step-2" style="display: none">
+						<div class="row">
+							<div class="col">
+								<h2>Control your machine</h2>
+							</div>
+						</div>
+						<div class="row mb-2">
+							<div class="col">
+								<p>
+									<input class="input-text input-command" type="text" name="command" value="" placeholder="Your python command here. Try 'move(10,10)'">
+								</p>
+								<p>
+									<a href="#" class="sendCommand">Send command</a>
+								</p>
+								<div class="code"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			{{/ifeq}}
+		</script>
+
 		<script id="layout-home" type="text/x-handlebars-template">
 			<div id="canvas-container"></div>
 			<div id="gallery-container"></div>
 		</script>
 
+		<script id="layout-drawing-single" type="text/x-handlebars-template">
+			<div id="drawing-container"></div>
+			<div id="connection-container"></div>
+		</script>
+
+		<script type="text/javascript" src="/bower_components/text-encoding/lib/encoding-indexes.js"></script>
+		<script type="text/javascript" src="/bower_components/text-encoding/lib/encoding.js"></script>
 		<script type="text/javascript" src="/bower_components/paper/dist/paper-full.js"></script>
 		<script type="text/javascript" src="/bower_components/handlebars/handlebars.js"></script>
 		<script type="text/javascript" src="/bower_components/underscore/underscore.js"></script>
@@ -278,6 +391,9 @@
 
 		<script type="text/javascript">
 			window.onload = function() {
+				// There will be WebSocket
+				var ws;
+
 				// Install paperjs globaly, fuck the scope
 				paper.install( window )
 
@@ -331,6 +447,17 @@
 					url: '/drawings'
 				})
 
+				// Instances of Backbone views and layouts
+				var headerView;
+				var drawingCanvasView;
+				var drawingDisplayView;
+				var aboutView;
+				var controlView;
+				var galleryView;
+				var homeLayout;
+				var drawingSingleLayout;
+				var connectionView;
+
 				// Backbone Views (and layouts)
 				var BaseView = Backbone.View.extend({
 					model: new Backbone.Model({}),
@@ -350,16 +477,33 @@
 				});
 
 				var HeaderView = BaseView.extend({
-					template: compileTemplate( 'template-header' )
+					template: compileTemplate( 'template-header' ),
+					beforeRender: function() {
+						if( headerView ) {
+							headerView.undelegateEvents();
+						}
+					},
 				})
 
 				var DrawingCanvasView = BaseView.extend({
 					template: compileTemplate( 'template-drawing-canvas' ),
 					afterRender: setupPaper,
+					beforeRender: function() {
+						if( drawingCanvasView ) {
+							drawingCanvasView.undelegateEvents();
+						}
+					},
 					events: {
-						'click .saveDrawing': 'saveDrawing'
+						'click .saveDrawing': 'saveDrawing',
+						'click .surpriseDrawing': 'surpriseDrawing'
 					},
 					saveDrawing: function() {
+						this.save( false );
+					},
+					surpriseDrawing: function() {
+						this.save( true );
+					},
+					save: function( isSurprise ) {
 						if( paper.path.segments.length == 0 ) {
 							console.log( 'no point, no save' );
 							return false;
@@ -384,7 +528,7 @@
 						var drawing = new DrawingModel({
 							title: this.$( '.input-title' ).val(),
 							author: this.$( '.input-author' ).val(),
-							surprise: false,
+							surprise: isSurprise,
 							rawPoints: rawPoints,
 							points: points
 						})
@@ -405,29 +549,179 @@
 				})
 
 				var DrawingDisplayView = BaseView.extend({
-					template: compileTemplate( 'template-drawing-display' )
+					template: compileTemplate( 'template-drawing-display' ),
+					beforeRender: function() {
+						if( drawingDisplayView ) {
+							drawingDisplayView.undelegateEvents();
+						}
+					},
+				})
+
+				var ConnectionView = BaseView.extend({
+					template: compileTemplate( 'template-connection' ),
+					events: {
+						'click .connect': 'connect',
+						'click .sendCommand': 'sendCommand',
+						'click .sendCustomCommand': 'sendCustomCommand',
+						'click .disconnect': 'disconnect',
+						'click .uploadDrawing': 'uploadDrawing',
+					},
+					beforeRender: function() {
+						if( connectionView ) {
+							connectionView.undelegateEvents();
+						}
+						console.log( 'try to connect' );
+						this.listenTo( this.model, "change", this.render );
+						this.connect();
+					},
+					connect: function() {
+						var self = this;
+						self.model.set( 'status', 'connecting' );
+						var address = 'ws://192.168.0.12:8266/';
+						ws = new WebSocket( address )
+						ws.onopen = function() {
+							ws.onmessage = self.onMessage.bind(self);
+						}
+						ws.onclose = function( event ) {
+							console.log( 'close message', event );
+							self.model.set( 'status', 'disconnected' );
+						}
+						ws.onerror = function( event ) {
+							console.log( 'error', event );
+						}
+						return false;
+					},
+					disconnect: function() {
+						ws.close();
+						this.model.set( 'status', 'disconnected' );
+						return false;
+					},
+					onMessage: function( event ) {
+						console.log( 'event message', event );
+
+						if( event.data instanceof Blob ) {
+							if( this.model.get( 'uploadState' ) == 1 ) {
+								var encodedString = this.encodeDrawing();
+								for (var offset = 0; offset < encodedString.length; offset += 1024) {
+									ws.send(encodedString.slice(offset, offset + 1024));
+								}
+								this.model.set( 'uploadState', 2 );
+								$( '.log' ).append( 'Drawing sent<br>' )
+							}
+						} else {
+							this.model.set( 'uploadState', 0 );
+							// If is asking for password, send password
+							if( event.data == 'Password: ' ) {
+								ws.send( '123456\n' )
+							}
+							// If WebREPL is connected, move to step 2
+							if( event.data.indexOf( 'WebREPL connected' ) != -1 ) {
+								this.model.set( 'status', 'connected' );
+							}
+							// Anyway log it to the "terminal"
+							// console.log(event.data);
+							$( '.log' ).append( event.data.replace( '\n', '<br>' ) )
+							$('.log').scrollTop( $('.log').prop('scrollHeight') );
+						}
+
+					},
+					sendCommand: function( e ) {
+						console.log( $( e.currentTarget ).data( 'command' ) );
+						ws.send( $( e.currentTarget ).data( 'command' ) + '\r' )
+						return false;
+					},
+					sendCustomCommand: function() {
+						console.log( $( '.input-command' ).val() );
+						ws.send( $( '.input-command' ).val() + '\r' )
+						return false;
+					},
+
+					encodeDrawing: function() {
+						var str = '';
+						this.model.attributes.points.forEach(function( item ) {
+							str += item[0] + ',' + item[1] + '\n';
+						})
+						var e = new TextEncoder();
+						var encodedString = e.encode( str );
+						return encodedString;
+					},
+
+					uploadDrawing: function( e ) {
+						e.preventDefault();
+
+						console.log( 'uploadDrawing' );
+						this.model.set( 'uploadState', 1 );
+
+						var encodedString = this.encodeDrawing();
+						var filename = 'path.txt';
+
+						var dest_fname = filename;
+				    var dest_fsize = encodedString.length;
+
+				    // WEBREPL_FILE = "<2sBBQLH64s"
+				    var rec = new Uint8Array(2 + 1 + 1 + 8 + 4 + 2 + 64);
+				    rec[0] = 'W'.charCodeAt(0);
+				    rec[1] = 'A'.charCodeAt(0);
+				    rec[2] = 1; // put
+				    rec[3] = 0;
+				    rec[4] = 0; rec[5] = 0; rec[6] = 0; rec[7] = 0; rec[8] = 0; rec[9] = 0; rec[10] = 0; rec[11] = 0;
+				    rec[12] = dest_fsize & 0xff; rec[13] = (dest_fsize >> 8) & 0xff; rec[14] = (dest_fsize >> 16) & 0xff; rec[15] = (dest_fsize >> 24) & 0xff;
+				    rec[16] = dest_fname.length & 0xff; rec[17] = (dest_fname.length >> 8) & 0xff;
+				    for (var i = 0; i < 64; ++i) {
+				        if (i < dest_fname.length) {
+				            rec[18 + i] = dest_fname.charCodeAt(i);
+				        } else {
+				            rec[18 + i] = 0;
+				        }
+				    }
+
+						ws.send( rec );
+						return false;
+					}
+
 				})
 
 				var AboutView = BaseView.extend({
-					template: compileTemplate( 'template-about' )
+					template: compileTemplate( 'template-about' ),
+					beforeRender: function() {
+						if( aboutView ) {
+							aboutView.undelegateEvents();
+						}
+					},
 				});
 
 				var ControlView = BaseView.extend({
-					template: compileTemplate( 'template-control' )
+					template: compileTemplate( 'template-control' ),
+					beforeRender: function() {
+						if( controlView ) {
+							controlView.undelegateEvents();
+						}
+					},
 				});
 
 				var GalleryView = BaseView.extend({
-					template: compileTemplate( 'template-gallery' )
+					template: compileTemplate( 'template-gallery' ),
+					beforeRender: function() {
+						if( galleryView ) {
+							galleryView.undelegateEvents();
+						}
+					},
 				})
 
 				var HomeLayout = BaseView.extend({
 					template: compileTemplate( 'layout-home' ),
+					beforeRender: function() {
+						if( homeLayout ) {
+							homeLayout.undelegateEvents();
+						}
+					},
 					afterRender: function() {
-
+						// Render drawing canvas
 						drawingCanvasView = new DrawingCanvasView({
 							el: this.$( '#canvas-container' )
 						})
 
+						// Fetch, sort drawings and render gallery
 						var drawings = new DrawingCollection();
 						drawings.fetch({
 							success: function( collection, response, option ) {
@@ -445,21 +739,33 @@
 					}
 				})
 
-				// Instances of Backbone views and layouts
-				var header = new HeaderView({
+				var DrawingSingleLayout = BaseView.extend({
+					template: compileTemplate( 'layout-drawing-single' ),
+					beforeRender: function() {
+						if( drawingSingleLayout ) {
+							drawingSingleLayout.undelegateEvents();
+						}
+					},
+					afterRender: function() {
+						// Render DrawingDisplayView
+						drawingDisplayView = new DrawingDisplayView({
+							el: this.$( '#drawing-container' ),
+							model: this.model
+						})
+						// Render print view
+						// Render connection view
+						connectionView = new ConnectionView({
+							el: this.$( '#connection-container' ),
+							model: this.model
+						})
+					}
+				})
+
+				headerView = new HeaderView({
 					el: $( 'header' )
 				})
-				var drawingCanvasView;
-				var drawingDisplayView;
-				var aboutView;
-				var controlView;
-				var galleryView;
-				var homeLayout;
 
-				// App router is where the magic happens. You have to undelegate your
-				// events before instantiating new stuff. There is no suggar here, just
-				// check and undelegate. If you think this is ugly you should check what
-				// is your favourite framework doing so you don't need to do it.
+				// App router is where the magic happens.
 				var AppRouter = Backbone.Router.extend({
 					routes: {
 						'': 'home',
@@ -470,48 +776,30 @@
 					},
 
 					home: function() {
-						if( drawingCanvasView ) {
-							drawingCanvasView.undelegateEvents();
-						}
-						if( galleryView ) {
-							galleryView.undelegateEvents();
-						}
-						if( homeLayout ) {
-							homeLayout.undelegateEvents();
-						}
 						homeLayout = new HomeLayout({
 							el: $( 'main' )
 						})
 					},
 
 					about: function() {
-						if( aboutView ) {
-							aboutView.undelegateEvents();
-						}
 						aboutView = new AboutView({
 							el: $( 'main' )
 						})
 					},
 
 					control: function() {
-						if( controlView ) {
-							controlView.undelegateEvents();
-						}
 						controlView = new ControlView({
 							el: $( 'main' )
 						})
 					},
 
 					single: function( id ) {
-						if( drawingDisplayView ) {
-							drawingDisplayView.undelegateEvents();
-						}
 						var drawing = new DrawingModel({id: id});
 						drawing.fetch({
 							success: function( model, response, option ) {
-								drawingDisplayView = new DrawingDisplayView({
+								drawingSingleLayout = new DrawingSingleLayout({
 									el: $( 'main' ),
-									model: new Backbone.Model(response)
+									model: new Backbone.Model( response )
 								})
 							},
 							error: function( model, response, option ) {
