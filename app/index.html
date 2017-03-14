@@ -79,6 +79,7 @@
 						{{else}}
 							<svg class="canvas" xmlns="http://www.w3.org/2000/svg">
 								<path d="{{#each rawPoints}}{{#ifeq @index 0}}M {{this.[0]}} {{this.[1]}} L {{else}}{{this.[0]}} {{this.[1]}}, {{/ifeq}}{{/each}}" fill="transparent" stroke="black" stroke-width="2"/>
+								<circle r="3" cx="{{rawPoints.[0].[0]}}" cy="{{rawPoints.[0].[1]}}" stroke="red" fill="red" />
 							</svg>
 						{{/if}}
 						{{#if author}}
