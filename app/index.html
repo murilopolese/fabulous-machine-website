@@ -580,9 +580,14 @@
 					},
 					connect: function() {
 						var self = this;
+						var address = $( '.input-address' ).val() || 'ws://192.168.0.12:8266/';
+						var password = $( '.input-password' ).val() || '123456';
+						console.log( 'wat', self.$( '.input-address' ).val(), self.$( '.input-password' ).val() );
+						self.model.set( 'address', address );
+						self.model.set( 'password', password );
 						self.model.set( 'status', 'connecting' );
-						var address = 'ws://192.168.0.12:8266/';
-						ws = new WebSocket( address )
+
+						ws = new WebSocket( self.model.get( 'address' ) )
 						ws.onopen = function() {
 							ws.onmessage = self.onMessage.bind(self);
 						}
@@ -601,6 +606,7 @@
 						return false;
 					},
 					onMessage: function( event ) {
+						var self = this;
 						console.log( 'event message', event );
 
 						if( event.data instanceof Blob ) {
@@ -616,7 +622,7 @@
 							this.model.set( 'uploadState', 0 );
 							// If is asking for password, send password
 							if( event.data == 'Password: ' ) {
-								ws.send( '123456\n' )
+								ws.send( self.model.get( 'password' ) + '\n' )
 							}
 							// If WebREPL is connected, move to step 2
 							if( event.data.indexOf( 'WebREPL connected' ) != -1 ) {
