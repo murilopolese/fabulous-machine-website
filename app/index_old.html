@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Fabulous Machine!</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<link rel="shortcut icon" href="https://cdn0.iconfinder.com/data/icons/octicons/1024/terminal-128.png" type="image/x-icon">
+		<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Inconsolata:400,700">
+
+		<link rel="stylesheet" href="/style/normalize.css" charset="utf-8">
+		<link rel="stylesheet" href="/style/bootstrap.min.css" charset="utf-8">
+		<link rel="stylesheet" href="/style/site.min.css" charset="utf-8">
+		<link rel="stylesheet" href="/style/main.css" charset="utf-8">
+	</head>
+	<body>
+
+		<div id="app">
+			<header></header>
+			<main></main>
+		</div>
+
+		<script id="template-header" type="text/x-handlebars-template">
+			<div class="container mb-4">
+				<div class="row">
+					<div class="col text-center">
+						<h1><a href="/#">Fabulous Machine</a></h1>
+						<p class="menu">
+							<a href="/#about">About</a> <a href="/#random">Random</a> <a href="/#control">Control</a>
+						</p>
+					</div>
+				</div>
+			</div>
+		</script>
+
+		<script id="template-drawing-canvas" type="text/x-handlebars-template">
+			<div class="container mb-4">
+				<div class="row mb-2">
+					<div class="col text-center">
+						<canvas id="canvas" class="canvas" resize></canvas>
+					</div>
+				</div>
+				<div class="row mb-2">
+					<div class="col text-left">
+						<p>
+							<input class="input-text input-title" type="text" name="title" value="" placeholder="Drawing title">
+						</p>
+					</div>
+					<div class="col text-right">
+						<p>
+							<input class="input-text input-author" type="text" name="author" value="" placeholder="Author">
+						</p>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col text-left">
+						<p>
+							<a class="saveDrawing" href="#">Save Drawing</a><br/>
+							<a class="surpriseDrawing" href="#">Surprise Drawing!</a>
+						</p>
+					</div>
+				</div>
+			</div>
+		</script>
+
+		<script id="template-drawing-display" type="text/x-handlebars-template">
+			<div class="container">
+				<div class="row">
+					<div class="col">
+						{{#if title}}
+							<h1>{{title}}</h1>
+						{{/if}}
+						{{#if surprise}}
+							<div class="canvas text-center d-flex align-items-center justify-content-center">
+								<p>
+									<strong>IT'S A SURPRISE!</strong>
+								</p>
+								<svg xmlns="http://www.w3.org/2000/svg" style="position: absolute; width: 100%; height: 100%;">
+									<circle r="3" cx="{{rawPoints.[0].[0]}}" cy="{{rawPoints.[0].[1]}}" stroke="red" fill="red" />
+								</svg>
+							</div>
+						{{else}}
+							<svg class="canvas" xmlns="http://www.w3.org/2000/svg">
+								<path d="{{#each rawPoints}}{{#ifeq @index 0}}M {{this.[0]}} {{this.[1]}} L {{else}}{{this.[0]}} {{this.[1]}}, {{/ifeq}}{{/each}}" fill="transparent" stroke="black" stroke-width="2"/>
+								<circle r="3" cx="{{rawPoints.[0].[0]}}" cy="{{rawPoints.[0].[1]}}" stroke="red" fill="red" />
+							</svg>
+						{{/if}}
+						{{#if author}}
+							<p>
+								by {{author}}
+							</p>
+						{{/if}}
+					</div>
+				</div>
+				<div class="row mt-3">
+					<div class="col">
+						<p>
+							<a href="/#">Draw another one</a><br>
+						</p>
+					</div>
+				</div>
+				<div class="row mt-3" style="display:none">
+					<div class="col">
+						<div class="code">[{{#each points}}[{{this.[0]}},{{this.[1]}}],{{/each}}]</div>
+					</div>
+				</div>
+			</div>
+		</script>
+
+		<script id="template-gallery" type="text/x-handlebars-template">
+			<div class="container">
+				<div class="row mb-4">
+					<div class="col text-center">
+						<h2>Gallery</h2>
+					</div>
+				</div>
+				<div class="row">
+					{{#each drawings}}
+						<div class="col-12 col-lg-6 mb-4">
+
+							<a href="/#drawing/{{_id}}">
+								{{#if surprise}}
+									<div class="thumbnail text-center d-flex align-items-center justify-content-center">
+										<p>
+											<strong>IT'S A SURPRISE!</strong>
+										</p>
+									</div>
+								{{else}}
+									<svg class="thumbnail" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 710 400">
+										<path d="{{#each rawPoints}}{{#ifeq @index 0}}M {{this.[0]}} {{this.[1]}} L {{else}}{{this.[0]}} {{this.[1]}}, {{/ifeq}}{{/each}}" fill="transparent" stroke="black" stroke-width="2"/>
+									</svg>
+								{{/if}}
+								{{#if title}}
+									{{title}}
+								{{else}}
+									No title
+								{{/if}}
+								<br>
+								{{#if author}}
+									by {{author}}
+								{{else}}
+									by Who Knows?
+								{{/if}}
+							</a>
+						</div>
+					{{/each}}
+				</div>
+			</div>
+		</script>
+
+		<script id="template-about" type="text/x-handlebars-template">
+			<div class="container">
+				<div class="row">
+					<div class="col">
+						<p>
+							<a href="http://murilopolese.com.br/drawing-machines-1" target="_blank">
+								<img src="https://i.imgur.com/bBT9mqP.jpg" alt="" />
+							</a>
+						</p>
+						<p>
+							<a href="http://murilopolese.com.br/drawing-machines-1" target="_blank">This is a brief story</a>
+							of this drawing machine. This website is intended to share drawings and
+							excite people about making their own drawing machines although right now
+							the only documentation I have about it is this
+							<a href="https://github.com/murilopolese/fabulous-machine" target="_blank">GitHub repository</a>
+							that I invite you to have a look!
+						</p>
+						<p>
+							By the way, I'm <a href="http://murilopolese.com.br">Murilo</a>. Nice to
+							meet you! If want to know more about this drawing machine or want me
+							to draw something for you, <a href="mailto:murilopolese@gmail.com">please let me know</a> :)
+						</p>
+						<br>
+						<blockquote class="instagram-media" data-instgrm-version="7" style=" background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin: 1px; max-width:658px; padding:0; width:99.375%; width:-webkit-calc(100% - 2px); width:calc(100% - 2px);"><div style="padding:8px;"> <div style=" background:#F8F8F8; line-height:0; margin-top:40px; padding:50.0% 0; text-align:center; width:100%;"> <div style=" background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAsCAMAAAApWqozAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAMUExURczMzPf399fX1+bm5mzY9AMAAADiSURBVDjLvZXbEsMgCES5/P8/t9FuRVCRmU73JWlzosgSIIZURCjo/ad+EQJJB4Hv8BFt+IDpQoCx1wjOSBFhh2XssxEIYn3ulI/6MNReE07UIWJEv8UEOWDS88LY97kqyTliJKKtuYBbruAyVh5wOHiXmpi5we58Ek028czwyuQdLKPG1Bkb4NnM+VeAnfHqn1k4+GPT6uGQcvu2h2OVuIf/gWUFyy8OWEpdyZSa3aVCqpVoVvzZZ2VTnn2wU8qzVjDDetO90GSy9mVLqtgYSy231MxrY6I2gGqjrTY0L8fxCxfCBbhWrsYYAAAAAElFTkSuQmCC); display:block; height:44px; margin:0 auto -44px; position:relative; top:-22px; width:44px;"></div></div><p style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; line-height:17px; margin-bottom:0; margin-top:8px; overflow:hidden; padding:8px 0 7px; text-align:center; text-overflow:ellipsis; white-space:nowrap;"><a href="https://www.instagram.com/p/BQyesuHBPCb/" style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:normal; line-height:17px; text-decoration:none;" target="_blank">A post shared by Murilo Polese (@murilopolese)</a> on <time style=" font-family:Arial,sans-serif; font-size:14px; line-height:17px;" datetime="2017-02-21T21:28:50+00:00">Feb 21, 2017 at 1:28pm PST</time></p></div></blockquote>
+						<br>
+						<blockquote class="instagram-media" data-instgrm-version="7" style=" background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin: 1px; max-width:658px; padding:0; width:99.375%; width:-webkit-calc(100% - 2px); width:calc(100% - 2px);"><div style="padding:8px;"> <div style=" background:#F8F8F8; line-height:0; margin-top:40px; padding:50.0% 0; text-align:center; width:100%;"> <div style=" background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAsCAMAAAApWqozAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAMUExURczMzPf399fX1+bm5mzY9AMAAADiSURBVDjLvZXbEsMgCES5/P8/t9FuRVCRmU73JWlzosgSIIZURCjo/ad+EQJJB4Hv8BFt+IDpQoCx1wjOSBFhh2XssxEIYn3ulI/6MNReE07UIWJEv8UEOWDS88LY97kqyTliJKKtuYBbruAyVh5wOHiXmpi5we58Ek028czwyuQdLKPG1Bkb4NnM+VeAnfHqn1k4+GPT6uGQcvu2h2OVuIf/gWUFyy8OWEpdyZSa3aVCqpVoVvzZZ2VTnn2wU8qzVjDDetO90GSy9mVLqtgYSy231MxrY6I2gGqjrTY0L8fxCxfCBbhWrsYYAAAAAElFTkSuQmCC); display:block; height:44px; margin:0 auto -44px; position:relative; top:-22px; width:44px;"></div></div><p style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; line-height:17px; margin-bottom:0; margin-top:8px; overflow:hidden; padding:8px 0 7px; text-align:center; text-overflow:ellipsis; white-space:nowrap;"><a href="https://www.instagram.com/p/BRDkaZShjFL/" style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:normal; line-height:17px; text-decoration:none;" target="_blank">A post shared by Murilo Polese (@murilopolese)</a> on <time style=" font-family:Arial,sans-serif; font-size:14px; line-height:17px;" datetime="2017-02-28T12:45:51+00:00">Feb 28, 2017 at 4:45am PST</time></p></div></blockquote>
+						<script async defer src="//platform.instagram.com/en_US/embeds.js"></script>
+					</div>
+				</div>
+			</div>
+		</script>
+
+		<script id="template-single" type="text/x-handlebars-template">
+			<div class="container">
+				<div class="row">
+					<div class="col">
+						{{#if drawing.title}}
+							<h1>{{drawing.title}}</h1>
+						{{/if}}
+						{{#if drawing.surprise}}
+							<div class="canvas text-center d-flex align-items-center justify-content-center">
+								<p>
+									<strong>IT'S A SURPRISE!</strong>
+								</p>
+							</div>
+						{{else}}
+							<svg class="canvas" xmlns="http://www.w3.org/2000/svg">
+								<path d="{{#each drawing.rawPoints}}{{#ifeq @index 0}}M {{this.[0]}} {{this.[1]}} L {{else}}{{this.[0]}} {{this.[1]}}, {{/ifeq}}{{/each}}" fill="transparent" stroke="black" stroke-width="2"/>
+							</svg>
+						{{/if}}
+						{{#if drawing.author}}
+							<p>
+								by {{drawing.author}}
+							</p>
+						{{/if}}
+					</div>
+				</div>
+				<div class="row mt-3">
+					<div class="col">
+						<p>
+							<a href="/">Draw another one</a><br>
+						</p>
+					</div>
+				</div>
+				<div class="row mt-3" style="display:none">
+					<div class="col">
+						<div class="code">[{{#each drawing.points}}[{{this.[0]}},{{this.[1]}}],{{/each}}]</div>
+					</div>
+				</div>
+			</div>
+		</script>
+
+		<script id="template-control" type="text/x-handlebars-template">
+			<div class="container mb-4">
+				<div class="connection-step-1">
+					<div class="row">
+						<div class="col">
+							<h2>Connect to your machine</h2>
+						</div>
+					</div>
+					<div class="row mb-2">
+						<div class="col text-left">
+							<p>
+								<input class="input-text input-address" type="text" name="address" value="ws://192.168.0.12:8266/" placeholder="Address">
+							</p>
+						</div>
+						<div class="col text-right">
+							<p>
+								<input class="input-text input-password" type="password" name="password" value="123456" placeholder="Password">
+							</p>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col text-left">
+							<p>
+								<a class="connect" href="#">Connect to machine</a><br/>
+							</p>
+						</div>
+					</div>
+				</div>
+				<div class="connection-step-2" style="display: none">
+					<div class="row">
+						<div class="col">
+							<h2>Control your machine</h2>
+						</div>
+					</div>
+					<div class="row mb-2">
+						<div class="col">
+							<p>
+								<input class="input-text input-command" type="text" name="command" value="" placeholder="Your python command here. Try 'move(10,10)'">
+							</p>
+							<p>
+								<a href="#" class="sendCommand">Send command</a>
+							</p>
+							<div class="code"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</script>
+
+		<script id="template-connection" type="text/x-handlebars-template">
+			{{#ifeq status "connecting"}}
+				<div class="container mb-4">
+					<div class="row">
+						<div class="col">
+							<h3>Connecting...</h3>
+						</div>
+					</div>
+				</div>
+			{{/ifeq}}
+			{{#ifeq status "connected"}}
+				<div class="container mb-4">
+					<div class="row">
+						<div class="col">
+							<h3>Connected!</h3>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-12">
+							<h4>Commands:</h4>
+						</div>
+						<div class="col-12 col-md-4">
+							<ul>
+								<li>
+									<input class="input-text input-command" type="text" name="command" value="move( 0 , 0 )" placeholder="Custom command">
+								</li>
+								<li class="mt-lg-2">
+									<a href="#" class="sendCustomCommand">Send command</a>
+								<li>
+							</ul>
+						</div>
+						<div class="co-12 col-md-4">
+							<ul>
+								<li><a href="#" class="uploadDrawing">Upload drawing</a></li>
+								<li><a href="#" class="sendCommand" data-command="draw()">Draw</a></li>
+								<li class="hidden-md-down"><br></li>
+								<li><a href="#" class="disconnect">Disconnect</a></li>
+							</ul>
+						</div>
+						<div class="col-12 col-md-4">
+							<ul>
+								<li><a href="#" class="sendCommand" data-command="move(0,50)">Move up</a></li>
+								<li><a href="#" class="sendCommand" data-command="move(0,-50)">Move down</a></li>
+								<li><a href="#" class="sendCommand" data-command="move(-50,0)">Move left</a></li>
+								<li><a href="#" class="sendCommand" data-command="move(50,0)">Move right</a></li>
+							</ul>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<h4>Logs:</h4>
+							<pre class="log"></pre>
+						</div>
+					</div>
+				</div>
+			{{/ifeq}}
+			{{#ifeq status "disconnected"}}
+				<div class="container mb-4">
+					<div class="connection-step-1">
+						<div class="row">
+							<div class="col">
+								<h2>Connect to your machine</h2>
+							</div>
+						</div>
+						<div class="row mb-2">
+							<div class="col text-left">
+								<p>
+									<input class="input-text input-address" type="text" name="address" value="ws://192.168.0.12:8266/" placeholder="Address">
+								</p>
+							</div>
+							<div class="col text-right">
+								<p>
+									<input class="input-text input-password" type="password" name="password" value="123456" placeholder="Password">
+								</p>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col text-left">
+								<p>
+									<a class="connect" href="#">Connect to machine</a><br/>
+								</p>
+							</div>
+						</div>
+					</div>
+					<div class="connection-step-2" style="display: none">
+						<div class="row">
+							<div class="col">
+								<h2>Control your machine</h2>
+							</div>
+						</div>
+						<div class="row mb-2">
+							<div class="col">
+								<p>
+									<input class="input-text input-command" type="text" name="command" value="" placeholder="Your python command here. Try 'move(10,10)'">
+								</p>
+								<p>
+									<a href="#" class="sendCommand">Send command</a>
+								</p>
+								<div class="code"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			{{/ifeq}}
+		</script>
+
+		<script id="layout-home" type="text/x-handlebars-template">
+			<div id="canvas-container"></div>
+			<div id="gallery-container"></div>
+		</script>
+
+		<script id="layout-drawing-single" type="text/x-handlebars-template">
+			<div id="drawing-container"></div>
+			<div id="connection-container"></div>
+		</script>
+
+		<script type="text/javascript" src="/bower_components/text-encoding/lib/encoding-indexes.js"></script>
+		<script type="text/javascript" src="/bower_components/text-encoding/lib/encoding.js"></script>
+		<script type="text/javascript" src="/bower_components/paper/dist/paper-full.js"></script>
+		<script type="text/javascript" src="/bower_components/handlebars/handlebars.js"></script>
+		<script type="text/javascript" src="/bower_components/underscore/underscore.js"></script>
+		<script type="text/javascript" src="/bower_components/jquery/dist/jquery.js"></script>
+		<script type="text/javascript" src="/bower_components/backbone/backbone.js"></script>
+
+		<script type="text/javascript">
+			window.onload = function() {
+				// There will be WebSocket
+				var ws;
+
+				// Install paperjs globaly, fuck the scope
+				paper.install( window )
+
+				// Set handy handlebars helper to compare two values
+				Handlebars.registerHelper( 'ifeq', function (a, b, options) {
+					if (a == b) { // eslint-disable-line eqeqeq
+						return options.fn(this);
+					} else {
+						return options.inverse(this);
+					}
+				});
+
+				// Function to compile a template by its id. Pure suggar.
+				var compileTemplate = function( templateSelector ) {
+					return Handlebars.compile( document.querySelector( '#' + templateSelector ).innerHTML )
+				}
+
+				// Setup paper canvas: This will search for a canvas with id #canvas and
+				// setup so you can start drawing and adding points to your path
+				var setupPaper = function() {
+					if( !document.querySelector( '#canvas' ) ) {
+						console.log( '#canvas not found' )
+						return false;
+					}
+
+					paper.clear()
+					paper.setup( 'canvas' );
+
+					paper.path = new Path();
+					paper.path.strokeColor = new Color( 0, 0, 0 )
+					paper.path.strokeWidth = 2
+
+					var tool = new Tool()
+					tool.minDistance = 10
+
+					tool.onMouseDrag = function( event ) {
+						paper.path.add( event.point )
+					}
+
+					tool.onMouseUp = function( event ) {
+						paper.path.add( event.point )
+					}
+				}
+
+				// Backbone Model and Collection stuff
+				// TODO: Fallback to some sort of local storage when there is no interwebs
+				var DrawingModel = Backbone.Model.extend({
+					urlRoot: '/drawings'
+				})
+				var DrawingCollection = Backbone.Collection.extend({
+					url: '/drawings'
+				})
+
+				// Instances of Backbone views and layouts
+				var headerView;
+				var drawingCanvasView;
+				var drawingDisplayView;
+				var aboutView;
+				var controlView;
+				var galleryView;
+				var homeLayout;
+				var drawingSingleLayout;
+				var connectionView;
+
+				// Backbone Views (and layouts)
+				var BaseView = Backbone.View.extend({
+					model: new Backbone.Model({}),
+					initialize: function() {
+						this.init()
+						this.beforeRender()
+						this.render()
+						this.afterRender()
+					},
+					render: function() {
+						this.$el.html( this.template( this.model.attributes ) );
+						return this;
+					},
+					init: function() {},
+					beforeRender: function() {},
+					afterRender: function() {}
+				});
+
+				var HeaderView = BaseView.extend({
+					template: compileTemplate( 'template-header' ),
+					beforeRender: function() {
+						if( headerView ) {
+							headerView.undelegateEvents();
+						}
+					},
+				})
+
+				var DrawingCanvasView = BaseView.extend({
+					template: compileTemplate( 'template-drawing-canvas' ),
+					afterRender: setupPaper,
+					beforeRender: function() {
+						if( drawingCanvasView ) {
+							drawingCanvasView.undelegateEvents();
+						}
+					},
+					events: {
+						'click .saveDrawing': 'saveDrawing',
+						'click .surpriseDrawing': 'surpriseDrawing'
+					},
+					saveDrawing: function() {
+						this.save( false );
+					},
+					surpriseDrawing: function() {
+						this.save( true );
+					},
+					save: function( isSurprise ) {
+						if( paper.path.segments.length == 0 ) {
+							console.log( 'no point, no save' );
+							return false;
+						}
+
+						var rawPoints = [];
+						var points = [];
+
+						paper.path.segments.forEach( function( segment, i ) {
+							rawPoints.push([
+								segment.point.x,
+								segment.point.y
+							]);
+							if( i != 0 ) {
+								points.push([
+									segment.point.x - paper.path.segments[i-1].point.x,
+									-( segment.point.y - paper.path.segments[i-1].point.y )
+								]);
+							}
+						})
+
+						var drawing = new DrawingModel({
+							title: this.$( '.input-title' ).val(),
+							author: this.$( '.input-author' ).val(),
+							surprise: isSurprise,
+							rawPoints: rawPoints,
+							points: points
+						})
+
+						drawing.save(
+							drawing.attributes,
+							{
+								success: function( model, response ) {
+									app.navigate( 'drawing/' + model.attributes._id,  { trigger: true, replace: true } );
+								},
+								error: function( model, response ) {
+									console.log( 'error', model, response )
+								}
+							}
+						);
+
+					}
+				})
+
+				var DrawingDisplayView = BaseView.extend({
+					template: compileTemplate( 'template-drawing-display' ),
+					beforeRender: function() {
+						if( drawingDisplayView ) {
+							drawingDisplayView.undelegateEvents();
+						}
+					},
+				})
+
+				var ConnectionView = BaseView.extend({
+					template: compileTemplate( 'template-connection' ),
+					events: {
+						'click .connect': 'connect',
+						'click .sendCommand': 'sendCommand',
+						'click .sendCustomCommand': 'sendCustomCommand',
+						'click .disconnect': 'disconnect',
+						'click .uploadDrawing': 'uploadDrawing',
+					},
+					beforeRender: function() {
+						if( connectionView ) {
+							connectionView.undelegateEvents();
+						}
+						console.log( 'try to connect' );
+						this.listenTo( this.model, "change", this.render );
+						this.connect();
+					},
+					connect: function() {
+						var self = this;
+						var address = $( '.input-address' ).val() || 'ws://192.168.0.12:8266/';
+						var password = $( '.input-password' ).val() || '123456';
+						console.log( 'wat', self.$( '.input-address' ).val(), self.$( '.input-password' ).val() );
+						self.model.set( 'address', address );
+						self.model.set( 'password', password );
+						self.model.set( 'status', 'connecting' );
+
+						ws = new WebSocket( self.model.get( 'address' ) )
+						ws.onopen = function() {
+							ws.onmessage = self.onMessage.bind(self);
+						}
+						ws.onclose = function( event ) {
+							console.log( 'close message', event );
+							self.model.set( 'status', 'disconnected' );
+						}
+						ws.onerror = function( event ) {
+							console.log( 'error', event );
+						}
+						return false;
+					},
+					disconnect: function() {
+						ws.close();
+						this.model.set( 'status', 'disconnected' );
+						return false;
+					},
+					onMessage: function( event ) {
+						var self = this;
+						console.log( 'event message', event );
+
+						if( event.data instanceof Blob ) {
+							if( this.model.get( 'uploadState' ) == 1 ) {
+								var encodedString = this.encodeDrawing();
+								for (var offset = 0; offset < encodedString.length; offset += 1024) {
+									ws.send(encodedString.slice(offset, offset + 1024));
+								}
+								this.model.set( 'uploadState', 2 );
+								$( '.log' ).append( 'Drawing sent<br>' )
+							}
+						} else {
+							this.model.set( 'uploadState', 0 );
+							// If is asking for password, send password
+							if( event.data == 'Password: ' ) {
+								ws.send( self.model.get( 'password' ) + '\n' )
+							}
+							// If WebREPL is connected, move to step 2
+							if( event.data.indexOf( 'WebREPL connected' ) != -1 ) {
+								this.model.set( 'status', 'connected' );
+							}
+							// Anyway log it to the "terminal"
+							// console.log(event.data);
+							$( '.log' ).append( event.data.replace( '\n', '<br>' ) )
+							$('.log').scrollTop( $('.log').prop('scrollHeight') );
+						}
+
+					},
+					sendCommand: function( e ) {
+						console.log( $( e.currentTarget ).data( 'command' ) );
+						ws.send( $( e.currentTarget ).data( 'command' ) + '\r' )
+						return false;
+					},
+					sendCustomCommand: function() {
+						console.log( $( '.input-command' ).val() );
+						ws.send( $( '.input-command' ).val() + '\r' )
+						return false;
+					},
+
+					encodeDrawing: function() {
+						var str = '';
+						this.model.attributes.points.forEach(function( item ) {
+							str += item[0] + ',' + item[1] + '\n';
+						})
+						var e = new TextEncoder();
+						var encodedString = e.encode( str );
+						return encodedString;
+					},
+
+					uploadDrawing: function( e ) {
+						e.preventDefault();
+
+						console.log( 'uploadDrawing' );
+						this.model.set( 'uploadState', 1 );
+
+						var encodedString = this.encodeDrawing();
+						var filename = 'path.txt';
+
+						var dest_fname = filename;
+				    var dest_fsize = encodedString.length;
+
+				    // WEBREPL_FILE = "<2sBBQLH64s"
+				    var rec = new Uint8Array(2 + 1 + 1 + 8 + 4 + 2 + 64);
+				    rec[0] = 'W'.charCodeAt(0);
+				    rec[1] = 'A'.charCodeAt(0);
+				    rec[2] = 1; // put
+				    rec[3] = 0;
+				    rec[4] = 0; rec[5] = 0; rec[6] = 0; rec[7] = 0; rec[8] = 0; rec[9] = 0; rec[10] = 0; rec[11] = 0;
+				    rec[12] = dest_fsize & 0xff; rec[13] = (dest_fsize >> 8) & 0xff; rec[14] = (dest_fsize >> 16) & 0xff; rec[15] = (dest_fsize >> 24) & 0xff;
+				    rec[16] = dest_fname.length & 0xff; rec[17] = (dest_fname.length >> 8) & 0xff;
+				    for (var i = 0; i < 64; ++i) {
+				        if (i < dest_fname.length) {
+				            rec[18 + i] = dest_fname.charCodeAt(i);
+				        } else {
+				            rec[18 + i] = 0;
+				        }
+				    }
+
+						ws.send( rec );
+						return false;
+					}
+
+				})
+
+				var AboutView = BaseView.extend({
+					template: compileTemplate( 'template-about' ),
+					beforeRender: function() {
+						if( aboutView ) {
+							aboutView.undelegateEvents();
+						}
+					},
+				});
+
+				var ControlView = BaseView.extend({
+					template: compileTemplate( 'template-control' ),
+					beforeRender: function() {
+						if( controlView ) {
+							controlView.undelegateEvents();
+						}
+					},
+				});
+
+				var GalleryView = BaseView.extend({
+					template: compileTemplate( 'template-gallery' ),
+					beforeRender: function() {
+						if( galleryView ) {
+							galleryView.undelegateEvents();
+						}
+					},
+				})
+
+				var HomeLayout = BaseView.extend({
+					template: compileTemplate( 'layout-home' ),
+					beforeRender: function() {
+						if( homeLayout ) {
+							homeLayout.undelegateEvents();
+						}
+					},
+					afterRender: function() {
+						// Render drawing canvas
+						drawingCanvasView = new DrawingCanvasView({
+							el: this.$( '#canvas-container' )
+						})
+
+						// Fetch, sort drawings and render gallery
+						var drawings = new DrawingCollection();
+						drawings.fetch({
+							success: function( collection, response, option ) {
+								response = _.sortBy( response, 'createdAt' )
+								galleryView = new GalleryView({
+									el: this.$( '#gallery-container' ),
+									model: new Backbone.Model({ drawings: response.reverse() } )
+								})
+							},
+							error: function() {
+								console.log( 'error fetching drawings' );
+							}
+						})
+
+					}
+				})
+
+				var DrawingSingleLayout = BaseView.extend({
+					template: compileTemplate( 'layout-drawing-single' ),
+					beforeRender: function() {
+						if( drawingSingleLayout ) {
+							drawingSingleLayout.undelegateEvents();
+						}
+					},
+					afterRender: function() {
+						// Render DrawingDisplayView
+						drawingDisplayView = new DrawingDisplayView({
+							el: this.$( '#drawing-container' ),
+							model: this.model
+						})
+						// Render print view
+						// Render connection view
+						connectionView = new ConnectionView({
+							el: this.$( '#connection-container' ),
+							model: this.model
+						})
+					}
+				})
+
+				headerView = new HeaderView({
+					el: $( 'header' )
+				})
+
+				// App router is where the magic happens.
+				var AppRouter = Backbone.Router.extend({
+					routes: {
+						'': 'home',
+						'about': 'about',
+						'control': 'control',
+						'random': 'random',
+						'drawing/:id': 'single'
+					},
+
+					home: function() {
+						homeLayout = new HomeLayout({
+							el: $( 'main' )
+						})
+					},
+
+					about: function() {
+						aboutView = new AboutView({
+							el: $( 'main' )
+						})
+					},
+
+					control: function() {
+						controlView = new ControlView({
+							el: $( 'main' )
+						})
+					},
+
+					single: function( id ) {
+						var drawing = new DrawingModel({id: id});
+						drawing.fetch({
+							success: function( model, response, option ) {
+								drawingSingleLayout = new DrawingSingleLayout({
+									el: $( 'main' ),
+									model: new Backbone.Model( response )
+								})
+							},
+							error: function( model, response, option ) {
+								console.log( 'error on fetch', model, response, option );
+							}
+						});
+					},
+
+					random: function() {
+						var drawings = new DrawingCollection();
+						drawings.fetch({
+							success: function( collection, response, option ) {
+								var drawing = response[ parseInt( Math.random() * response.length ) ];
+								app.navigate( 'drawing/' + drawing._id,  { trigger: true, replace: true } );
+							},
+							error: function() {
+								console.log( 'error fetching drawings' );
+							}
+						})
+					}
+
+				})
+
+				// Start the router and turn on the Backbone.history without push state
+				var app = new AppRouter()
+				Backbone.history.start({pushState: false})
+
+			}
+		</script>
+
+	</body>
+</html>

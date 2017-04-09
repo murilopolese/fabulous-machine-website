@@ -1,0 +1,46 @@
+<link rel="import" href="../../bower_components/app-router/app-router.html">
+<link rel="import" href="../fabulous-header/fabulous-header.html">
+<link rel="import" href="../view-home/view-home.html">
+<link rel="import" href="../view-about/view-about.html">
+
+<dom-module id="app-main">
+    <template>
+        <fabulous-header
+            pages="[[pages]]"
+            active="[[currentPage]]"
+            on-route="[[onRoute]]"
+            ></fabulous-header>
+        <app-router mode="pushstate" trailingSlash="ignore">
+            <app-route path="/" element="view-home"></app-route>
+            <app-route path="/about" element="view-about"></app-route>
+            <app-route path="/random" element="view-random"></app-route>
+            <app-route path="/control" element="view-control"></app-route>
+            <app-route path="/:id" element="view-item"></app-route>
+            <app-route path="/*" import="/components/view-error/view-error.html"></app-route>
+        </app-router>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    Polymer({
+        is: 'app-main',
+        properties: {
+            currentPage: {
+                type: String,
+                value: 'about'
+            },
+            pages: {
+                type: Array,
+                value:  [
+                    { key: 'about', label: 'About', link: '/about' },
+                    { key: 'random', label: 'Random', link: '/random' },
+                    { key: 'control', label: 'Control', link: '/control' }
+                ]
+            }
+        },
+        onRoute: function (e) {
+            e.preventDefault();
+            console.log(e);
+        }
+    })
+</script>

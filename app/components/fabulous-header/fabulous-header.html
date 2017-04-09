@@ -1,0 +1,35 @@
+<dom-module id="fabulous-header">
+    <style>
+        :host .active {
+            font-weight: bold;
+        }
+    </style>
+    <template>
+        <h1><a href="/#">Fabulous Machine</a></h1>
+        <ul class="menu">
+            <template is="dom-repeat" items="[[pages]]" as="page">
+                <li><a href="#" class$="[[activeClass(active, page.key)]]" on-tap="route">[[page.label]]</a></li>
+            </template>
+        </ul>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    Polymer({
+        is: 'fabulous-header',
+        properties: {
+            active: {
+                type: String
+            },
+            pages: {
+                type: Array
+            }
+        },
+        activeClass: function (active, key) {
+            return (active === key) ? 'active' : '';
+        },
+        route: function (e) {
+            e.preventDefault();
+            console.log('a', e);
+        }
+    })
+</script>
