@@ -5,7 +5,7 @@
         }
     </style>
     <template>
-        <h1><a href="/#">Fabulous Machine</a></h1>
+        <h1><a href="#" on-tap="routeHome">Fabulous Machine</a></h1>
         <ul class="menu">
             <template is="dom-repeat" items="[[pages]]" as="page">
                 <li><a href="#" class$="[[activeClass(active, page.key)]]" on-tap="route">[[page.label]]</a></li>
@@ -26,6 +26,12 @@
         },
         activeClass: function (active, key) {
             return (active === key) ? 'active' : '';
+        },
+        routeHome: function (e) {
+            let home = { key: 'home', label: 'Home', link: '/' };
+            e.model = e.model || {};
+            e.model.page = home;
+            this.route(e);
         },
         route: function (e) {
             this.fire('route', e.model.page);
