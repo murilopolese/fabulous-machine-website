@@ -1,4 +1,4 @@
-<dom-module id="fabulous-header">
+<dom-module id="fab-header">
     <style>
         :host .active {
             font-weight: bold;
@@ -15,7 +15,7 @@
 </dom-module>
 <script type="text/javascript">
     Polymer({
-        is: 'fabulous-header',
+        is: 'fab-header',
         properties: {
             active: {
                 type: String
@@ -28,8 +28,8 @@
             return (active === key) ? 'active' : '';
         },
         route: function (e) {
+            this.fire('route', e.model.page);
             e.preventDefault();
-            console.log('a', e);
         }
     })
 </script>

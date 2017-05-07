@@ -1,16 +1,19 @@
 <link rel="import" href="../../bower_components/app-router/app-router.html">
-<link rel="import" href="../fabulous-header/fabulous-header.html">
-<link rel="import" href="../view-home/view-home.html">
-<link rel="import" href="../view-about/view-about.html">
+<link rel="import" href="../fab-header/fab-header.html">
+<link rel="import" href="../../views/view-home/view-home.html">
+<link rel="import" href="../../views/view-about/view-about.html">
+<link rel="import" href="../../views/view-random/view-random.html">
+<link rel="import" href="../../views/view-control/view-control.html">
+<link rel="import" href="../../views/view-error/view-error.html">
 
-<dom-module id="app-main">
+<dom-module id="fab-main">
     <template>
-        <fabulous-header
+        <fab-header
             pages="[[pages]]"
             active="[[currentPage]]"
-            on-route="[[onRoute]]"
-            ></fabulous-header>
-        <app-router mode="pushstate" trailingSlash="ignore">
+            on-route="onRoute">
+            </fab-header>
+        <app-router id="router" mode="pushstate" trailingSlash="ignore">
             <app-route path="/" element="view-home"></app-route>
             <app-route path="/about" element="view-about"></app-route>
             <app-route path="/random" element="view-random"></app-route>
@@ -23,7 +26,7 @@
 
 <script type="text/javascript">
     Polymer({
-        is: 'app-main',
+        is: 'fab-main',
         properties: {
             currentPage: {
                 type: String,
@@ -40,7 +43,9 @@
         },
         onRoute: function (e) {
             e.preventDefault();
-            console.log(e);
+            let page = e.detail;
+            this.$.router.go(page.link);
+            this.set('currentPage', page.key);
         }
     })
 </script>
