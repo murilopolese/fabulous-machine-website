@@ -1,27 +1,28 @@
 'use strict';
 
-var express = require('express'),
+// LOAD ENVIRONMENT VARIABLES
+require('dotenv').config();
+
+let express = require('express'),
     bodyParser = require('body-parser'),
     mongoose = require('mongoose'),
-    bluebird = require('bluebird'),
     // DEFINE Schema
     Schema = new mongoose.Schema({
         surprise: Boolean,
         title: String,
         author: String,
         rawPoints: Array,
-        points: Array,
-        createdAt: Date
+        points: Array
     }),
-    // DEFINE MODEL
-    Drawing = mongoose.model('Drawing', Schema),
+    timestamps = require('mongoose-timestamp'),
     app = express(),
     REST = require('express-restify')(app);
 
-// LOAD ENVIRONMENT VARIABLES
-require('dotenv').config();
+// ADD TIMESTAMPS TO DRAWING MODEL SO IT WILL GET AUTOMATICALLY 'createdAt' and `updatedAt`
+Schema.plugin(timestamps);
 
-mongoose.Promise = bluebird;
+// DEFINE MODEL
+let Drawing = mongoose.model('Drawing', Schema);
 
 // CONNECT TO DATABASE
 mongoose.connect(process.env.MONGO_URI || 'mongodb://172.17.0.2:27017/fabulous-machines');
@@ -37,7 +38,6 @@ app.use(bodyParser.urlencoded({
     extended: true,
     parameterLimit: 100000
 }));
-
 
 // REST ROUTES
 REST.register({
