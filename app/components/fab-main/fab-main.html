@@ -4,6 +4,7 @@
 <link rel="import" href="../../views/view-about/view-about.html">
 <link rel="import" href="../../views/view-random/view-random.html">
 <link rel="import" href="../../views/view-control/view-control.html">
+<link rel="import" href="../../views/view-drawing/view-drawing.html">
 <link rel="import" href="../../views/view-error/view-error.html">
 
 <dom-module id="fab-main">
@@ -13,12 +14,14 @@
             active="[[currentPage]]"
             on-route="onRoute">
             </fab-header>
-        <app-router id="router" mode="pushstate" trailingSlash="ignore">
+        <app-router id="router"
+                    trailingSlash="ignore"
+                    on-drawing-saved="onDrawingSaved">
             <app-route path="/" element="view-home"></app-route>
             <app-route path="/about" element="view-about"></app-route>
             <app-route path="/random" element="view-random"></app-route>
             <app-route path="/control" element="view-control"></app-route>
-            <app-route path="/:id" element="view-item"></app-route>
+            <app-route path="/drawing/:id" element="view-drawing"></app-route>
             <app-route path="/*" import="/components/view-error/view-error.html"></app-route>
         </app-router>
     </template>
@@ -46,6 +49,10 @@
             let page = e.detail;
             this.$.router.go(page.link);
             this.set('currentPage', page.key);
+        },
+        onDrawingSaved (e) {
+            e.preventDefault();
+            this.$.router.go(`/drawing/${e.detail._id}`);
         }
     })
 </script>

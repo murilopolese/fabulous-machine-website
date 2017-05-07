@@ -1,10 +1,26 @@
+<link rel="import" href="../../components/fab-canvas/fab-canvas.html">
+<link rel="import" href="../../components/fab-gallery/fab-gallery.html">
+
 <dom-module id="view-home">
     <template>
-        <p>Hello view home</p>
+        <fab-canvas></fab-canvas>
+        <fab-gallery drawings="[[drawings]]"></fab-gallery>
     </template>
 </dom-module>
 <script type="text/javascript">
     Polymer({
-        is: 'view-home'
+        is: 'view-home',
+        properties: {
+            drawings: {
+                type: Array
+            }
+        },
+        attached () {
+            fetch('/drawings')
+                .then((r) => r.json())
+                .then((drawings) => {
+                    this.set('drawings', drawings);
+                })
+        }
     })
 </script>

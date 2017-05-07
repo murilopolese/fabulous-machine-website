@@ -1,0 +1,153 @@
+<script type="text/javascript" src="../../bower_components/paper/dist/paper-full.js"></script>
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<dom-module id="fab-canvas">
+    <style>
+        :host .canvas-container {
+            background: rgba( 0, 0, 0, 0.05 );
+            width: 100%;
+            max-width: 710px;
+            height: 400px;
+        }
+        :host .canvas-container #canvas {
+            width: 100%;
+            height: 100%;
+        }
+        :host .input-text {
+            width: 100%;
+            padding: 10px;
+            color: #9DA0A2;
+            border: none;
+            border-bottom: solid 2px #9DA0A2;
+        }
+    </style>
+    <template>
+        <div class="canvas-container">
+            <canvas id="canvas" resize></canvas>
+        </div>
+        <form id="canvas-form" is="iron-form">
+            <paper-input name="title" label="Drawing title"></paper-input>
+            <paper-input name="author" label="Your name"></paper-input>
+            <paper-button on-tap="submitDrawing">Save</paper-button>
+            <paper-button on-tap="submitSurprise">Save Surprise</paper-button>
+        </form>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    Polymer({
+        is: 'fab-canvas',
+        properties: {},
+        attached () {
+            this.setupPaper();
+        },
+        /**
+        * Merge form data with drawing points
+        */
+        getData () {
+            let data = {};
+            data = Object.assign(data, this.serializeForm());
+            data = Object.assign(data, this.getPaperPoints());
+            return data;
+        },
+        /**
+        * Get both points with absolute position vectors (rawPoints) and points
+        * that are the relative position from the previous point (points)
+        */
+        getPaperPoints () {
+            let points = [],
+            rawPoints = [];
+            paper.path.segments.forEach((segment, i) => {
+                rawPoints.push([
+                    segment.point.x,
+                    segment.point.y
+                ]);
+                if (i != 0) {
+                    points.push([
+                        segment.point.x - paper.path.segments[i - 1].point.x,
+                        -(segment.point.y - paper.path.segments[i - 1].point.y)
+                    ]);
+                }
+            })
+            return { rawPoints, points };
+        },
+        /**
+        * Save data to api
+        */
+        save (data) {
+            fetch('/drawings',
+                {
+                    method: 'post',
+                    headers: new Headers({
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }),
+                    body: JSON.stringify(data)
+                }
+            ).then((r) => r.json())
+            .then((response) => {
+                this.fire('drawing-saved', response)
+            })
+            .catch((error) => {
+                console.error('error', error);
+            })
+        },
+        /**
+        * Serialize form
+        */
+        serializeForm () {
+            let form = this.$['canvas-form'];
+            if (!form) {
+                return {};
+            }
+            return form.serialize();
+        },
+        /**
+        * Paper.js needs to be setup before use when not in "paperscript" tags.
+        * This method will also setup both the tool and events for the paper
+        * instance
+        */
+        setupPaper () {
+            if (!this.$.canvas) {
+                console.error('canvas not found');
+                return false;
+            }
+            paper.clear();
+            paper.setup('canvas');
+            paper.path = new paper.Path();
+            paper.path.strokeColor = new paper.Color(0, 0, 0);
+            paper.path.strokeWidth = 2;
+            let tool = new paper.Tool();
+            tool.minDistance = 10;
+            tool.onMouseDrag = function (event) {
+                paper.path.add(event.point)
+            }
+            tool.onMouseUp = function (event) {
+                paper.path.add(event.point)
+            }
+        },
+        /**
+        * Get the data and append `surprise` property to it
+        */
+        submit (isSecret) {
+            let data = this.getData();
+            data.surprise = isSecret;
+            this.save(data);
+        },
+        /**
+        * Submit drawing as public/not-surprise
+        */
+        submitDrawing (e) {
+            e.preventDefault();
+            this.submit(false);
+        },
+        /**
+        * Submit drawing as a surprise
+        */
+        submitSurprise (e) {
+            e.preventDefault();
+            this.submit(true);
+        }
+    })
+</script>

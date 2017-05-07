@@ -1,0 +1,26 @@
+<dom-module id="fab-gallery">
+    <style>
+        :host .item {
+            width: 30%;
+            float: left;
+            margin: 5px;
+        }
+    </style>
+    <template>
+        <template is="dom-repeat" items="[[drawings]]" as="drawing">
+            <div class="item">
+                <fab-drawing drawing="[[drawing]]" mode="thumbnail"></fab-drawing>
+            </div>
+        </template>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    Polymer({
+        is: 'fab-gallery',
+        properties: {
+            drawings: {
+                type: Array
+            }
+        }
+    })
+</script>

@@ -1,0 +1,69 @@
+<link rel="import" href="../fab-svg/fab-svg.html">
+
+<dom-module id="fab-drawing">
+    <style media="screen">
+        :host .drawing-container {
+            background: rgba( 0, 0, 0, 0.05 );
+            width: 100%;
+            max-width: 710px;
+            overflow: hidden;
+        }
+    </style>
+    <template>
+        <!-- DISPLAY -->
+        <template is="dom-if" if="[[isDisplay]]">
+            <h1>{{drawing.title}}</h1>
+            <div class="drawing-container">
+                <fab-svg points="[[drawing.rawPoints]]"
+                         surprise="[[drawing.surprise]]"
+                         first-point="[[drawing.rawPoints.0]]">
+                         </fab-svg>
+            </div>
+            <p>by {{drawing.author}}</p>
+        </template>
+        <!-- THUMBNAIL -->
+        <template is="dom-if" if="[[isThumbnail]]">
+            <div class="drawing-container">
+                <a href="/#/drawing/[[drawing._id]]">
+                    <fab-svg points="[[drawing.rawPoints]]"
+                             surprise="[[drawing.surprise]]">
+                             </fab-svg>
+                </a>
+            </div>
+            <p>
+                <a href="/#/drawing/[[drawing._id]]">
+                    {{drawing.title}} by {{drawing.author}}
+                </a>
+            </p>
+        </template>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    Polymer({
+        is: 'fab-drawing',
+        properties: {
+            drawing: {
+                type: Object,
+                value: null
+            },
+            mode: {
+                type: String,
+                value: 'display'
+            },
+            isDisplay: {
+                type: Boolean,
+                computed: 'computeIsDisplay(mode)'
+            },
+            isThumbnail: {
+                type: Boolean,
+                computed: 'computeIsThumbnail(mode)'
+            }
+        },
+        computeIsDisplay (mode) {
+            return mode === 'display';
+        },
+        computeIsThumbnail (mode) {
+            return mode === 'thumbnail';
+        }
+    })
+</script>

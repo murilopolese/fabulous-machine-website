@@ -1,0 +1,30 @@
+<link rel="import" href="../../components/fab-drawing/fab-drawing.html">
+
+<dom-module id="view-drawing">
+    <template>
+        <fab-drawing drawing="[[drawing]]" mode="display"></fab-drawing>
+        <!-- SEND TO MACHINE HERE -->
+    </template>
+</dom-module>
+<script type="text/javascript">
+    Polymer({
+        is: 'view-drawing',
+        properties: {
+            id: {
+                type: String,
+                value: null
+            },
+            drawing: {
+                type: Object,
+                value: null
+            }
+        },
+        attached () {
+            fetch(`/drawings/${this.id}`)
+                .then((r) => r.json())
+                .then((drawing) => {
+                    this.set('drawing', drawing)
+                });
+        }
+    })
+</script>
