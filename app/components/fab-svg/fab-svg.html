@@ -8,11 +8,40 @@
     <template>
         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 710 400">
             <circle r="3" cx$="[[firstPoint.0]]" cy$="[[firstPoint.1]]" stroke="red" fill="red" />
-            <path d$="[[d]]" fill="transparent" stroke="black" stroke-width="2"></path>
+            <template is="dom-if" if="[[!surprise]]">
+                <path d$="[[d]]" fill="transparent" stroke="black" stroke-width="2"></path>
+            </template>
+            <template is="dom-if" if="[[surprise]]">
+                <text x="355" y="200" font-size="50" style="text-anchor: middle; dominant-baseline: hanging;">IT'S A SURPRISE!</text>
+            </template>
         </svg>
     </template>
 </dom-module>
 <script type="text/javascript">
+    // Templates inside SVG won't work in polymer-1.0 without some monkeypatching.
+    (function () {
+        var doc = document.currentScript.ownerDocument,
+        root = doc.querySelector('dom-module > template').content,
+        templates = root.querySelectorAll('svg template'),
+        el, template, attribs, attrib, count, child, content;
+        for (let i = 0; i < templates.length; i++) {
+            el = templates[i];
+            template = el.ownerDocument.createElement('template');
+            el.parentNode.insertBefore(template, el);
+            attribs = el.attributes;
+            count = attribs.length;
+            while (count-- > 0) {
+                attrib = attribs[count];
+                template.setAttribute(attrib.name, attrib.value);
+                el.removeAttribute(attrib.name);
+            }
+            el.parentNode.removeChild(el);
+            content = template.content;
+            while ((child = el.firstChild)) {
+                content.appendChild(child);
+            }
+        }
+    })();
     Polymer({
         is: 'fab-svg',
         properties: {
@@ -20,8 +49,7 @@
                 type: Array
             },
             surprise: {
-                type: Boolean,
-                value: true
+                type: Boolean
             },
             firstPoint: {
                 type: Object,

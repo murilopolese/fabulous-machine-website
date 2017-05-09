@@ -1,7 +1,5 @@
 <script type="text/javascript" src="../../bower_components/paper/dist/paper-full.js"></script>
 <link rel="import" href="../../bower_components/iron-form/iron-form.html">
-<link rel="import" href="../../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../../bower_components/paper-button/paper-button.html">
 
 <dom-module id="fab-canvas">
     <style>
@@ -10,29 +8,35 @@
             width: 100%;
             max-width: 710px;
             height: 400px;
+            margin: 0 auto;
         }
         :host .canvas-container #canvas {
             width: 100%;
             height: 100%;
         }
-        :host .input-text {
-            width: 100%;
-            padding: 10px;
-            color: #9DA0A2;
-            border: none;
-            border-bottom: solid 2px #9DA0A2;
-        }
     </style>
     <template>
-        <div class="canvas-container">
-            <canvas id="canvas" resize></canvas>
+        <div class="container">
+            <div class="row">
+                <div class="col mb-4">
+                    <div class="canvas-container">
+                        <canvas id="canvas" resize></canvas>
+                    </div>
+                </div>
+            </div>
+            <form id="canvas-form" is="iron-form" class="row">
+                <div class="col-12 col-md-6 mb-4">
+                    <input class="input-text" name="title" type="text" placeholder="Drawing title"></input>
+                </div>
+                <div class="col-12 col-md-6 mb-4">
+                    <input class="input-text" name="author" type="text" placeholder="Your name"></input>
+                </div>
+                <div class="col-12 mb-4">
+                    <a href="#" on-tap="submitDrawing">Save Drawing</a> or
+                    <a href="#" on-tap="submitSurprise">Save Surprise</a>
+                </div>
+            </form>
         </div>
-        <form id="canvas-form" is="iron-form">
-            <paper-input name="title" label="Drawing title"></paper-input>
-            <paper-input name="author" label="Your name"></paper-input>
-            <paper-button on-tap="submitDrawing">Save</paper-button>
-            <paper-button on-tap="submitSurprise">Save Surprise</paper-button>
-        </form>
     </template>
 </dom-module>
 <script type="text/javascript">

@@ -1,7 +1,7 @@
 <link rel="import" href="../fab-svg/fab-svg.html">
 
 <dom-module id="fab-drawing">
-    <style media="screen">
+    <style>
         :host .drawing-container {
             background: rgba( 0, 0, 0, 0.05 );
             width: 100%;
@@ -12,14 +12,14 @@
     <template>
         <!-- DISPLAY -->
         <template is="dom-if" if="[[isDisplay]]">
-            <h1>{{drawing.title}}</h1>
+            <h1>{{title}}</h1>
             <div class="drawing-container">
                 <fab-svg points="[[drawing.rawPoints]]"
                          surprise="[[drawing.surprise]]"
                          first-point="[[drawing.rawPoints.0]]">
                          </fab-svg>
             </div>
-            <p>by {{drawing.author}}</p>
+            <p>by {{author}}</p>
         </template>
         <!-- THUMBNAIL -->
         <template is="dom-if" if="[[isThumbnail]]">
@@ -32,7 +32,7 @@
             </div>
             <p>
                 <a href="/#/drawing/[[drawing._id]]">
-                    {{drawing.title}} by {{drawing.author}}
+                    {{title}} by {{author}}
                 </a>
             </p>
         </template>
@@ -57,6 +57,14 @@
             isThumbnail: {
                 type: Boolean,
                 computed: 'computeIsThumbnail(mode)'
+            },
+            author: {
+                type: String,
+                computed: 'computeHasAuthor(drawing.author)'
+            },
+            title: {
+                type: String,
+                computed: 'computeHasTitle(drawing.title)'
             }
         },
         computeIsDisplay (mode) {
@@ -64,6 +72,12 @@
         },
         computeIsThumbnail (mode) {
             return mode === 'thumbnail';
+        },
+        computeHasAuthor (author) {
+            return author ? author : 'Anonymous Artist';
+        },
+        computeHasTitle (title) {
+            return title ? title : 'Unknown Title';
         }
     })
 </script>

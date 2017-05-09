@@ -1,17 +1,14 @@
 <dom-module id="fab-gallery">
-    <style>
-        :host .item {
-            width: 30%;
-            float: left;
-            margin: 5px;
-        }
-    </style>
     <template>
-        <template is="dom-repeat" items="[[drawings]]" as="drawing">
-            <div class="item">
-                <fab-drawing drawing="[[drawing]]" mode="thumbnail"></fab-drawing>
+        <div class="container">
+            <div class="row">
+                <template is="dom-repeat" items="[[drawings]]" as="drawing">
+                    <div class="col-12 col-md-6">
+                        <fab-drawing drawing="[[drawing]]" mode="thumbnail"></fab-drawing>
+                    </div>
+                </template>
             </div>
-        </template>
+        </div>
     </template>
 </dom-module>
 <script type="text/javascript">
